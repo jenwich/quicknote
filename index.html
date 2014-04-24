@@ -1,0 +1,113 @@
+<html>
+<head>
+	<title>QuickNote</title>
+	<link rel="stylesheet" href="lib/jquery-ui/blitzer/jquery-ui.custom.min.css" />
+	<link rel="stylesheet" href="style.css" />
+	<script type="text/javascript" src="lib/jquery.js"></script>
+	<script type="text/javascript" src="lib/jquery-ui/jquery-ui.custom.min.js"></script>
+	<script type="text/javascript" src="quicknote.js"></script>
+</head>
+<body>
+<div id="main">
+	<div id="header">
+		<h1>Quicknote</h1>
+	</div>
+	<div id="container">
+		<div id="left-content">
+			<div id="input-area">
+				<h2>Input Note</h2>
+				<div id="input-option-block">
+					<p>
+						<span id="input-type-set">
+							<input type="radio" name="input-type-radio" class="input-type-radio" id="input-type-create" checked="checked" />
+							<label for="input-type-create">Create New Note</label>
+							<input type="radio" name="input-type-radio" class="input-type-radio" id="input-type-edit" />
+							<label for="input-type-edit">Edit Note</label>
+						</span>
+						<input type="text" id="input-edit-id" size="4" maxlength="4" />
+					</p>
+					<p>
+						<textarea id="input-note"></textarea>
+					</p>
+					<p>
+						<label for="input-date">Date: </label>
+						<input type="text" id="input-date" size="10" maxlength="10" />
+						<label for="input-time">Time: </label>
+						<input type="text" id="input-time" size="8" maxlength="8" />
+					</p>
+					<p>
+						<label for="input-category">Category: </label>
+						<input type="text" id="input-category" size="12" />
+						<input type="checkbox" id="input-ishighlight" />
+						<label for="input-ishighlight">Highlight</label>
+					</p>
+					<p>
+						<button id="input-send">Send</button>
+						<button id="input-delete">Delete</button>
+						<span id="input-status"></span>
+					</p>
+				</div>
+			</div>
+			<div id="select-area">
+				<h2>Select Notes</h2>
+				<div id="select-type-block">
+					<div id="select-type-set">
+						<input type="radio" name="select-type-radio" class="select-type-radio" id="select-type-recent" checked="checked" />
+						<label for="select-type-recent">Recent</label>
+						<input type="radio" name="select-type-radio" class="select-type-radio" id="select-type-date" />
+						<label for="select-type-date">Date</label>
+						<input type="radio" name="select-type-radio" class="select-type-radio" id="select-type-highlight" />
+						<label for="select-type-highlight">Highlight</label>
+					</div>
+				</div>
+				<div id="select-option-block">
+					<div id="select-option-recent" class="select-option">
+						<p><input type="text" id="select-recent-amount" size="4" maxlength="4" /> Recent Notes</p>
+						<p>
+							<input type="checkbox" id="select-recent-catechk" /><label for="select-recent-catechk">Category</label>
+							<select id="select-recent-catedropdown"></select>
+						</p>
+					</div>
+					<div id="select-option-date" class="select-option">
+						<p>
+							<label for="select-date-datepicker">Date: </label>
+							<input type="text" id="select-date-datepicker" class="datepicker" size="10" />
+						</p>
+						<p>
+							<button id="select-date-today">Today</button>
+							<span id="select-date-nav-set">
+								<button id="select-date-prev">Prev</button>
+								<button id="select-date-next">Next</button>					
+							</span>
+						</p>
+					</div>
+					<div id="select-option-highlight" class="select-option">
+						<p>
+							Month: <select id="select-hl-month"></select>
+							Year: <select id="select-hl-year"></select>
+						</p>
+						<p>
+							<button id="select-hl-thismonth">This Month</button>
+							<span id="select-hl-nav-set">
+								<button id="select-hl-prev">Prev</button>
+								<button id="select-hl-next">Next</button>	
+							</span>
+						</p>
+					</div>
+				</div>
+				<div id="select-status-block">
+					<span id="select-status-span"></span>
+				</div>
+			</div>
+		</div>
+		<div id="right-content">
+			<div id="show-area">
+				<h2>Show Notes</h2>
+				<div id="show-title">(title)</div>
+				<div id="show-note"></div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

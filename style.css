@@ -1,0 +1,120 @@
+
+body, div, p, h1, h2, h3 {
+	margin: 0px;
+	padding: 0px;
+}
+
+body {
+	color: #FFFFFF;
+	font-family: Ubuntu, Tahoma;
+	font-size: 16px;
+	background: #000000;
+}
+
+#main {
+	width: 960px;
+	margin: auto;
+	padding: 0px;
+	//background: #993399;
+}
+
+#header {
+	padding: 20px 0px 20px 0px;
+	text-align: center;
+}
+
+#container {
+	//height: 400px;
+}
+
+#left-content {
+	float: left;
+	width: 480px;
+	height: 480px;
+	background: #226666;
+}
+
+#input-area, #select-area {
+	padding: 5px 10px 5px 10px;
+}
+
+#input-area p {
+	padding: 2px 0px 5px 0px;
+}
+
+#select-area p {
+	padding: 10px 0px 2px 0px;
+}
+
+#left-content input {
+	padding: 2px;
+	font-size: 14px;
+}
+
+#left-content select {
+	font-family: Arial;
+	font-size: 14px;
+}
+
+#input-note {
+	width: 400px;
+	height: 120px;
+	font-size: 16px;
+}
+
+#right-content {
+	float: right;
+	width: 480px;
+	height: 400px;
+	background: ;
+}
+
+#show-area {
+	padding: 5px 10px 5px 10px;
+}
+
+#show-title {
+	text-align: center;
+}
+
+.show-note {
+	padding: 2px 0px 5px 0px;
+	border-bottom: 1px dashed #FFFFFF;
+	cursor: pointer;
+}
+
+.show-note .date-para {
+	color: #888888;
+	font-size: 14px;
+	text-align: right;
+}
+
+.show-note .note-category {
+	color: #9999FF;
+}
+
+.show-note .note-time {
+	color: #FF0066;
+}
+
+.show-note-date {
+	border: 0px;
+}
+
+.ui-datepicker-calendar thead tr {
+	color: #000000;
+}
+
+.ui-button, .ui-button-text .ui-button{  
+	font-family: Arial;
+	font-weight: bold;
+	font-size: 14px; 
+}
+
+div.ui-datepicker {
+	font-family: Arial;
+	font-size: 14px;
+}
+
+
+
