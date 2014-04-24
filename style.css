@@ -89,8 +89,17 @@ body {
 	text-align: right;
 }
 
+.show-note .note-highlight {
+	color: #66CCFF;
+	font-weight: bold;
+}
+
 .show-note .note-category {
 	color: #9999FF;
+}
+
+.show-note .note-date {
+	color: #FFFF00;
 }
 
 .show-note .note-time {

@@ -12,7 +12,10 @@
 			"INSERT INTO notes (note,datetime,category,ishighlight) VALUES ('". $_POST["note"] ."','". ($date_str." ".$time_str) ."','". $_POST["category"] ."',". $_POST["isHighlight"] .");");
 		if($result) echo "success";
 	} else if($_POST["type"] == "edit") {
-		
+		$result = mysqli_query($con,
+			"UPDATE notes SET note='". $_POST["note"] ."',datetime='". ($date_str." ".$time_str) ."',category='". $_POST["category"] ."',ishighlight=". $_POST["isHighlight"] ." WHERE id=". $_POST["id"] .";");
 	}
+	if($result) echo "success";
+	else echo "error";
 	mysqli_close($con);
 ?>

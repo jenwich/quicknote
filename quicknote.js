@@ -7,13 +7,19 @@ var myStr = {
 	day_full: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
 };
 
+$(function() {
+	readCategory();
+	input.start();
+	select.start();
+});
+
 function readCategory() {
 	$.ajax({
 		type: "POST",
 		url: "get_category",
 		success: function(data) {
 			category_list = eval(data);
-			select.createCategoryDropdown();
+			select.setCategoryDropdown();
 			$("#input-category").autocomplete({
 				source: category_list,
 			});
@@ -21,14 +27,22 @@ function readCategory() {
 	});
 }
 
-$(function() {
-	readCategory();
-	input.start();
-	select.start();
-});
+//INPUT
+(function() {
+	
+	//INPUT OBJECT
+	var input = {
+		start: function() {
+			setObjProp();
+			setObjEvent();
+		},
+		resetForm: function() {
+			resetForm();
+		},
+	};
 
-var input = {
-	data: {
+	//INPUT: DATA OBJECT
+	var data = {
 		type: "create",
 		id: 0,
 		note: "",
@@ -36,14 +50,10 @@ var input = {
 		time: "",
 		category: "",
 		isHighlight: false,
-	},
+	};
 	
-	start: function() {
-		input.setObjProp();
-		input.setObjEvent();
-	},
-	
-	setObjProp: function() {
+	//INPUT: SET OBJECT PROPERTIES
+	var setObjProp = function() {
 		$("#input-type-set").buttonset();
 		$("#input-edit-id,#input-delete").hide();
 		$("#input-date").datepicker({
@@ -54,66 +64,119 @@ var input = {
 		//$("#input-ishighlight").button();
 		$("#input-send").button();
 		$("#input-delete").button();
-	},
+	};
 	
-	setObjEvent: function() {
+	//INPUT: SET OBJECT EVENT
+	var setObjEvent = function() {
 		$(".input-type-radio").change(function() {
 			if($("#input-type-create").prop("checked")) {
-				input.data.type = "create";
+				data.type = "create";
+				resetForm();
 				$("#input-edit-id,#input-delete").hide();
 			} else if($("#input-type-edit").prop("checked")) {
-				input.data.type = "edit";
+				data.type = "edit";
 				$("#input-edit-id,#input-delete").show();
 			}
 		});
 		$("#input-type-create").click(function() {
-			input.resetForm();
+			resetForm();
 		});
 		$("#input-send").click(function() {
-			input.send();
+			send();
 		});
-	},
+		$("#input-delete").click(function() {
+			var id = eval($("#input-edit-id").val());
+			$.ajax({
+				type: "POST",
+				url: "delete_note.php",
+				data: {
+					"id": id
+				},
+				success: function(data_c) {
+					if(data_c == "success") $("#input-status").html("Delete ["+ id +"] Success");
+					else $("#input-status").html("Error");
+					setTimeout(function() {
+						$("#input-status").empty();
+					}, 2000);
+				}
+			});
+		});
+	};
 	
-	send: function() {
-		input.data.id = eval($("#input-edit-id").val());
-		input.data.note = $("#input-note").val();
+	//INPUT: SEND DATA
+	var send = function() {
+		data.id = eval($("#input-edit-id").val());
+		data.note = $("#input-note").val();
 		
 		var str = $("#input-date").val();
 		var arr = str.split("-");
-		if(str != "") input.data.date = arr[2] +"-"+ arr[1] +"-"+ arr[0];
-		else input.data.date = "";
+		if(str != "") data.date = arr[2] +"-"+ arr[1] +"-"+ arr[0];
+		else data.date = "";
 		
-		input.data.time = $("#input-time").val().replace(/[.]/g, ":");
-		var colon = input.data.time.match(/[:]/g);
-		if(!input.data.time || colon == null) input.data.time = "";
-		else if(colon.length == 1) input.data.time += ":00";
+		data.time = $("#input-time").val().replace(/[.]/g, ":");
+		var colon = data.time.match(/[:]/g);
+		if(!data.time || colon == null) data.time = "";
+		else if(colon.length == 1) data.time += ":00";
 		
-		input.data.category = $("#input-category").val();
-		input.data.isHighlight = $("#input-ishighlight").prop("checked");
+		data.category = $("#input-category").val();
+		data.isHighlight = $("#input-ishighlight").prop("checked");
 		
 		$.ajax({
 			type: "POST",
 			url: "send_note.php",
-			data: input.data,
-			success: function(data) {
-				//console.log(data);
+			data: data,
+			success: function(data_c) {
+				if(data_c == "success") {
+					if(data.type == "create") $("#input-status").html("Create Note Success");
+					else if(data.type == "edit") $("#input-status").html("Edit ["+ data.id +"] Success");				
+				} else {
+					$("#input-status").html("Error");
+				}
+				setTimeout(function() {
+					$("#input-status").empty();
+				}, 2000);
 			}
 		});
-	},
+	};
 	
-	resetForm: function() {
+	//INPUT: RESET INPUT FORM
+	var resetForm = function() {
 		$("#input-edit-id").val("");
 		$("#input-note").val("");
 		$("#input-date").val("");
 		$("#input-time").val("");
 		$("#input-category").val("");
-		$("#input-ishighlight").attr("checked", "");
-	},
-};
+		$("#input-ishighlight").prop("checked", "");
+	};
+	
+	window.input = input;
+})();
 
-var select = {
-	//DATA OBJECT
-	data: {
+//SELECT
+(function() {
+	
+	//SELECT OBJECT
+	var select = {
+		//ON START
+		start: function() {
+			createHighlightDropdown();
+			setObjProp();
+			setObjEvent();
+			changeType("recent");
+			setDate();
+			send();
+		},
+		
+		//SET CATEGORY DROPDOWN-MENU
+		setCategoryDropdown: function() {
+			createCategoryDropdown();
+		},
+	};
+	
+	window.select = select;
+	
+	//SELECT: DATA OBJECT
+	var data = {
 		type: "recent",
 		day: 0,
 		month: 0,
@@ -122,23 +185,13 @@ var select = {
 		hl_year: new Date().getFullYear(),
 		amount: 0,
 		category: "",
-	},
+	};
 	
-	//DATE OBJECT
-	date: new Date(),
-	
-	//ON START
-	start: function() {
-		select.createHighlightDropdown();
-		select.setObjProp();
-		select.setObjEvent();
-		select.changeType("recent");
-		select.setDate();
-		select.send();
-	},
-	
-	//SET OBJECT PROPERTIES
-	setObjProp: function() {
+	//SELECT: DATE OBJECT
+	var date = new Date();
+
+	//SELECT: SET OBJECT PROPERTIES
+	var setObjProp = function() {
 		$("#select-type-set").buttonset();
 		$("#select-recent-catechk").button();
 		$("#select-recent-catedropdown").prop("disabled", "disabled");
@@ -173,86 +226,86 @@ var select = {
 			}
 		});
 		$("#select-hl-thismonth").button();
-	},
+	};
 	
-	//SET OBJECT EVENT
-	setObjEvent: function() {
-		$(".select-type-radio").change(function() {
-			if($("#select-type-recent").prop("checked")) select.changeType("recent");
-			else if($("#select-type-date").prop("checked")) select.changeType("date");
-			else if($("#select-type-highlight").prop("checked")) select.changeType("highlight");
-			select.send();
+	//SELECT: SET OBJECT EVENT
+	var setObjEvent = function() {
+		$(".select-type-radio").click(function() {
+			if($("#select-type-recent").prop("checked")) changeType("recent");
+			else if($("#select-type-date").prop("checked")) changeType("date");
+			else if($("#select-type-highlight").prop("checked")) changeType("highlight");
+			send();
 		});
 		$("#select-recent-amount").change(function() {
 			var value = eval($(this).val());
 			if(value == null) value = 0;
-			select.data.amount = value;
-			select.send();
+			data.amount = value;
+			send();
 		});
 		$("#select-recent-catechk").change(function() {
 			if($("#select-recent-catechk").prop("checked")) {
 				$("#select-recent-catedropdown").prop("disabled", "");
-				select.setCategory(true);
+				setCategory(true);
 			} else {
 				$("#select-recent-catedropdown").prop("disabled", "disabled");
-				select.setCategory(false);
+				setCategory(false);
 			}
 		});
 		$("#select-recent-catedropdown").change(function() {
-			select.setCategory(true);
+			setCategory(true);
 		});
 		$("#select-date-datepicker").change(function() {
 			var arr = $(this).val().split("-");
-			select.date = new Date(eval(arr[2]), eval(arr[1])-1, eval(arr[0]));
-			select.setDate();
-			select.send();
+			date = new Date(eval(arr[2]), eval(arr[1])-1, eval(arr[0]));
+			setDate();
+			send();
 		});
 		$("#select-date-prev").click(function() {
-			select.date.setTime(select.date.getTime() - 86400000);
-			select.setDate();
-			select.send();
+			date.setTime(date.getTime() - 86400000);
+			setDate();
+			send();
 		});
 		$("#select-date-next").click(function() {
-			select.date.setTime(select.date.getTime() + 86400000);
-			select.setDate();
-			select.send();
+			date.setTime(date.getTime() + 86400000);
+			setDate();
+			send();
 		});
 		$("#select-date-today").click(function() {
-			select.date = new Date();
-			select.setDate();
-			select.send();
+			date = new Date();
+			setDate();
+			send();
 		});
 		$("#select-hl-prev").click(function() {
-			select.data.hl_month--;
-			select.setHighlightMonth();
-			select.send();
+			data.hl_month--;
+			setHighlightMonth();
+			send();
 		});
 		$("#select-hl-next").click(function() {
-			select.data.hl_month++;
-			select.setHighlightMonth();
-			select.send();
+			data.hl_month++;
+			setHighlightMonth();
+			send();
 		});
 		$("#select-hl-thismonth").click(function() {
-			select.data.hl_month = new Date().getMonth()+1;
-			select.data.hl_year = new Date().getFullYear();
-			select.setHighlightMonth();
-			select.send();
+			data.hl_month = new Date().getMonth()+1;
+			data.hl_year = new Date().getFullYear();
+			setHighlightMonth();
+			send();
 		});
-	},
+	};
 	
-	//CREATE CATEGORY DROPDOWN-MENU
-	createCategoryDropdown: function() {
+	//SELECT: CREATE CATEGORY DROPDOWN-MENU
+	var createCategoryDropdown = function() {
 		var obj = $("#select-recent-catedropdown");
 		for(var i in category_list) 
 			obj.append("<option value='"+ category_list[i] +"'>"+ category_list[i] +"</option>");
-	},
+	};
 	
-	//CREATE MONTH DROPDOWN-MENU
-	createHighlightDropdown: function() {
+	//SELECT: CREATE MONTH DROPDOWN-MENU
+	var createHighlightDropdown = function() {
 		var month_obj = $("#select-hl-month");
 		var year_obj = $("#select-hl-year");
-		var thismonth = select.data.hl_month;
-		var thisyear = select.data.hl_year;
+		var thismonth = data.hl_month;
+		var thisyear = data.hl_year;
 		for(var i = 1; i <= 12; ++i) {
 			var opt_obj = $("<option value='"+ i +"'>"+ myStr.month_full[i-1] +"</option>");
 			if(i == thismonth) opt_obj.prop("selected", "selected");
@@ -263,59 +316,58 @@ var select = {
 			if(i == thisyear) opt_obj.prop("selected", "selected");
 			year_obj.append(opt_obj);
 		}
-	},
+	};
 	
-	//CHANGE SELECT TYPE
-	changeType: function(type) {
-		select.data.type = type;
+	//SELECT: CHANGE SELECT TYPE
+	var changeType = function(type) {
+		data.type = type;
 		$(".select-option").hide();
 		$("#select-option-"+ type).show();
-	},
+	};
 	
-	//SET CATEGORY DATA ON select.data
-	setCategory: function(isEnabled) {
-		if(isEnabled) select.data.category = $("#select-recent-catedropdown").val();
-		else select.data.category = "";
-		select.send();
-	},
+	//SELECT: SET CATEGORY DATA ON data
+	var setCategory = function(isEnabled) {
+		if(isEnabled) data.category = $("#select-recent-catedropdown").val();
+		else data.category = "";
+		send();
+	};
 	
-	//SET DATE DATA ON select.data & SET DATEPICKER VALUE
-	setDate: function() {
-		var date = select.date;
+	//SELECT: SET DATE DATA ON data & SET DATEPICKER VALUE
+	var setDate = function() {
 		var day = date.getDate(), month = date.getMonth()+1, year = date.getFullYear();
 		$("#select-date-datepicker").val(((day<10)?"0"+day:day)+"-"+((month<10)?"0"+month:month)+"-"+year);
-		select.data.day = day;
-		select.data.month = month;
-		select.data.year = year;
-	},
+		data.day = day;
+		data.month = month;
+		data.year = year;
+	};
 	
 	
-	//SET HIGHLIGHT DATA ON select.data & SET DROPDOWN VALUE
-	setHighlightMonth: function() {
-		if(select.data.hl_month < 1) {
-			select.data.hl_month = 12;
-			select.data.hl_year--;
+	//SELECT: SET HIGHLIGHT DATA ON data & SET DROPDOWN VALUE
+	var setHighlightMonth = function() {
+		if(data.hl_month < 1) {
+			data.hl_month = 12;
+			data.hl_year--;
 		}
-		if(select.data.hl_month > 12) {
-			select.data.hl_month = 1;
-			select.data.hl_year++;
+		if(data.hl_month > 12) {
+			data.hl_month = 1;
+			data.hl_year++;
 		}
-		$("#select-hl-month option[value='"+ select.data.hl_month +"']").prop("selected", "selected");
-		$("#select-hl-year option[value='"+ select.data.hl_year +"']").prop("selected", "selected");
-	},
+		$("#select-hl-month option[value='"+ data.hl_month +"']").prop("selected", "selected");
+		$("#select-hl-year option[value='"+ data.hl_year +"']").prop("selected", "selected");
+	};
 	
-	//SEND DATA
-	send: function() {
+	//SELECT: SEND DATA
+	var send = function() {
 		$.ajax({
 			type: "POST",
 			url: "get_note.php",
-			data: select.data,
-			success: function(data) {
-				showNotes(select.data, eval(data));
+			data: data,
+			success: function(data_c) {
+				showNotes(data, eval(data_c));
 			},
 		});
-	},
-};
+	};
+})();
 
 function splitDate(date) {
 	var arr = date.split(" ");
@@ -360,8 +412,13 @@ function showNotes(info, data) {
 	} else if(info.type == "date") {
 		for(var i in data) {
 			if(data[i].isHighlight) {
-			
-			} else {
+				var note_obj = $("<div class='show-note show-note-date' title='"+ data[i].datetime +"' index='"+ i +"'></div>");
+				note_obj.append("<p class='note-para'><span class='note-highlight'>"+ data[i].note +"</span></p>");
+				show_obj.append(note_obj);
+			}
+		}
+		for(var i in data) {
+			if(!data[i].isHighlight) {
 				var note_obj = $("<div class='show-note show-note-date' title='"+ data[i].datetime +"' index='"+ i +"'></div>");
 				var d = splitDate(data[i].datetime);
 				var cate_str = "";
@@ -371,8 +428,14 @@ function showNotes(info, data) {
 			}
 		}
 	} else if(info.type == "highlight") {
-		
+		for(var i in data) {
+			var note_obj = $("<div class='show-note show-note-date' title='"+ data[i].datetime +"' index='"+ i +"'></div>");
+			var d = splitDate(data[i].datetime);
+			note_obj.append("<span class='note-date'>"+ d.day +" "+ myStr.month_short[eval(d.month)-1] +" "+ d.year +"</span> <span class='note-highlight'>"+ data[i].note +"</span>");
+			show_obj.append(note_obj);
+		}
 	}
+	/*
 	show_obj.find(".show-note").tooltip({
 		track: true,
 		content: function() {
@@ -380,6 +443,7 @@ function showNotes(info, data) {
 			return d.day +" "+ myStr.month_short[eval(d.month)-1] +" "+ d.year +" "+ d.time;
 		}
 	});	
+	*/
 	show_obj.find(".show-note").click(function() {
 		var index = eval($(this).attr("index"));
 		$("#input-type-edit").click();
@@ -390,11 +454,9 @@ function showNotes(info, data) {
 		$("#input-time").val(d.time.replace(/[:]/g,"."));
 		$("#input-category").val(data[index].category);
 		//alert(data[index].isHighlight);
-		if(data[index].isHighlight) $("#input-ishighlight").attr("checked", "checked");
-		else $("#input-ishighlight").attr("checked", "");
+		if(data[index].isHighlight) $("#input-ishighlight").prop("checked", "checked");
+		else $("#input-ishighlight").prop("checked", "");
 	});
 }
-
-
 
 
