@@ -71,11 +71,12 @@ function readCategory() {
 		$(".input-type-radio").change(function() {
 			if($("#input-type-create").prop("checked")) {
 				data.type = "create";
-				resetForm();
 				$("#input-edit-id,#input-delete").hide();
+				$("#input-send .ui-button-text").html("Create");
 			} else if($("#input-type-edit").prop("checked")) {
 				data.type = "edit";
 				$("#input-edit-id,#input-delete").show();
+				$("#input-send .ui-button-text").html("Edit");
 			}
 		});
 		$("#input-type-create").click(function() {
@@ -86,20 +87,22 @@ function readCategory() {
 		});
 		$("#input-delete").click(function() {
 			var id = eval($("#input-edit-id").val());
-			$.ajax({
-				type: "POST",
-				url: "delete_note.php",
-				data: {
-					"id": id
-				},
-				success: function(data_c) {
-					if(data_c == "success") $("#input-status").html("Delete ["+ id +"] Success");
-					else $("#input-status").html("Error");
-					setTimeout(function() {
-						$("#input-status").empty();
-					}, 2000);
-				}
-			});
+			if(confirm("Delete ["+ id +"] ?")) {
+				$.ajax({
+					type: "POST",
+					url: "delete_note.php",
+					data: {
+						"id": id
+					},
+					success: function(data_c) {
+						if(data_c == "success") $("#input-status").html("Delete ["+ id +"] Success");
+						else $("#input-status").html("Error");
+						setTimeout(function() {
+							$("#input-status").empty();
+						}, 2000);
+					}
+				});			
+			}
 		});
 	};
 	
@@ -127,8 +130,10 @@ function readCategory() {
 			data: data,
 			success: function(data_c) {
 				if(data_c == "success") {
-					if(data.type == "create") $("#input-status").html("Create Note Success");
-					else if(data.type == "edit") $("#input-status").html("Edit ["+ data.id +"] Success");				
+					if(data.type == "create") {
+						$("#input-status").html("Create Note Success");
+						resetForm();
+					} else if(data.type == "edit") $("#input-status").html("Edit ["+ data.id +"] Success");				
 				} else {
 					$("#input-status").html("Error");
 				}

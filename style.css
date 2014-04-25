@@ -29,7 +29,7 @@ body {
 
 #left-content {
 	float: left;
-	width: 480px;
+	width: 420px;
 	height: 480px;
 	background: #226666;
 }
@@ -64,7 +64,7 @@ body {
 
 #right-content {
 	float: right;
-	width: 480px;
+	width: 540px;
 	height: 400px;
 	background: ;
 }
